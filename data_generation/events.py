@@ -3,14 +3,16 @@ from faker import Faker
 import datetime
 import pandas as pd
 
-customer_Data = pd.read_csv('Customer.csv',index_col=False)
+product_instance_Data = pd.read_csv('product_instance.csv',index_col=False)
 fake = Faker()
 
-def Customer_ID_for_product_instanse(customer_Data):
-    customer_ID = customer_Data.ID
-    return  customer_ID
+product_instance_Data_test = product_instance_Data.head(10)
 
-def date_of_event():
+def business_product_instance_id_gen(product_instance_Data):
+    business_product_instance_id_for = product_instance_Data.business_product_instance_id
+    return business_product_instance_id_for
+
+def date_of_event_gen():
     dateEvent = []
     timeEvent = []
     events_per_day = np.random.randint(1,20, size=10)
@@ -19,4 +21,37 @@ def date_of_event():
             dateEvent.append(fake.date_between(start_date=datetime.date(2018,1,1)))
             timeEvent.append(fake.time())
     return dateEvent,timeEvent
+
+def format_time_transoform(product_instance_Data_test):
+
+    product_instance_Data_test.termination_date.fillna(datetime.date(2022,4,1),inplace=True)
+
+    for i in range(len(product_instance_Data_test['activation_date'])):
+        date_split = str(product_instance_Data_test.activation_date.values[i]).split("-")
+        product_instance_Data_test.activation_date.values[i] = datetime.date(int(date_split[0]),
+                                                                             int(date_split[1]),
+                                                                             int(date_split[2]))
+
+    for i in range(len(product_instance_Data_test['termination_date'])):
+        date_split = str(product_instance_Data_test.termination_date.values[i]).split("-")
+        product_instance_Data_test.termination_date.values[i] = datetime.date(int(date_split[0]),
+                                                                              int(date_split[1]),
+                                                                              int(date_split[2]))
+
+    product_instance_Data_test['all_days'] = product_instance_Data_test['termination_date'] - product_instance_Data_test['activation_date']
+    for i in range(len(product_instance_Data_test['all_days'])):
+        product_instance_Data_test.all_days.values[i] = int(product_instance_Data_test.all_days.values[i])
+    print(product_instance_Data_test['all_days'])
+    print(type(product_instance_Data_test.all_days.values[0]))
+
+
+
+
+
+
+#product_instance_Data_test['Amount_of_time'] = product_instance_Data_test['termination_date'] - product_instance_Data_test['activation_date']
+
+#x = datetime.date(2022,2,2)-datetime.date(2022,2,1)
+#x1 = int(x.days)
+format_time_transoform(product_instance_Data_test)
 
