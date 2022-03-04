@@ -24,7 +24,7 @@ def date_of_event_gen():
 
 def format_time_transoform(product_instance_Data_test):
 
-    product_instance_Data_test.termination_date.fillna(datetime.date(2022,4,1),inplace=True)
+    product_instance_Data_test.termination_date.fillna(datetime.date.today(),inplace=True)
 
     for i in range(len(product_instance_Data_test['activation_date'])):
         date_split = str(product_instance_Data_test.activation_date.values[i]).split("-")
@@ -37,12 +37,13 @@ def format_time_transoform(product_instance_Data_test):
         product_instance_Data_test.termination_date.values[i] = datetime.date(int(date_split[0]),
                                                                               int(date_split[1]),
                                                                               int(date_split[2]))
+    all_days = []
+    for i in range(len(product_instance_Data_test['activation_date'])):
+        x = product_instance_Data_test.termination_date.values[i]-product_instance_Data_test.activation_date.values[i]
+        x1 = int(x.days)
+        all_days.append(x1)
+    print(all_days)
 
-    product_instance_Data_test['all_days'] = product_instance_Data_test['termination_date'] - product_instance_Data_test['activation_date']
-    for i in range(len(product_instance_Data_test['all_days'])):
-        product_instance_Data_test.all_days.values[i] = int(product_instance_Data_test.all_days.values[i])
-    print(product_instance_Data_test['all_days'])
-    print(type(product_instance_Data_test.all_days.values[0]))
 
 
 
