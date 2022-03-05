@@ -41,18 +41,18 @@ def format_time_transoform(product_instance_Data_test):
 
 def date_of_event_gen(all_days,a,b):
     dateEvent = []
-    timeEvent = []
     business_product_instance_id = []
+    hour_chance = [0.01,0.01,0.01,0.01,0.01,0.02,0.03,0.06,0.07,0.08,0.06,0.07,0.04,0.03,0.04,0.06,0.08,0.06,0.08,0.06,0.04,0.03,0.02,0.02]
     for i in range(len(all_days)):
         for j in range(all_days[i]):
             business_product_instance_id.append(i)
             dateEvent.append(fake.date_between(start_date=b[i],end_date=a[i]))
-            timeEvent.append(fake.time())
-    return business_product_instance_id, dateEvent, timeEvent
+    len1 = len(business_product_instance_id)
+    x = np.arange(1,25)
+    print(x)
+    hour = np.random.choice(x,size=len1, p=hour_chance)
+    minuts = np.random.randint(1,60,size=len1)
+    return business_product_instance_id, dateEvent, hour, minuts
 
 
-all_days,a,b = format_time_transoform(product_instance_Data_test)
-c,c1,c2 = date_of_event_gen(all_days,a,b)
-print(c)
-print(c1)
-print(c2)
+
