@@ -71,6 +71,24 @@ def date_of_event_gen(all_days,a,b,IDs,birth):
     minuts = np.random.randint(1,60,size=len1)
     return business_product_instance_id, dateEvent, hour, minuts,IDs_new,birth_new
 
+def type_of_event_gen(IDs_new,birth_new):
+    type_of_events = []
+    type_of_events_for_rand = ['call','SMS','Data']
+    ver_old = [0.65,0.25,0.1]
+    ver_middle = [0.4,0.1,0.5]
+    ver_young = [0.2,0.05,0.75]
+    x = datetime.date(1997,1,1)
+    y = datetime.date(1967,1,1)
+    for i in range(len(IDs_new)):
+        if (birth_new[i] > x) and (birth_new[i] > y):
+            type_of_events.append(np.random.choice(type_of_events_for_rand,p=ver_young))
+        if (birth_new[i] < x) and (birth_new[i] > y):
+            type_of_events.append(np.random.choice(type_of_events_for_rand, p=ver_middle))
+        if (birth_new[i] < x) and (birth_new[i] < y):
+            type_of_events.append(np.random.choice(type_of_events_for_rand, p=ver_old))
+    return type_of_events
 
-a1,a2,a3,a4,a5 = format_time_transoform(product_instance_Data_test,marge_2)
-b1,b2,b3,b4,b5,b6 = date_of_event_gen(a1,a2,a3,a4,a5)
+
+all_days,a,b,IDs,birth = format_time_transoform(product_instance_Data_test,marge_2)
+business_product_instance_id, dateEvent, hour, minuts,IDs_new,birth_new = date_of_event_gen(all_days,a,b,IDs,birth)
+print(type_of_event_gen(IDs_new,birth_new))
