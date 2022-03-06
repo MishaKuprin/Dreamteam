@@ -73,7 +73,7 @@ def date_of_event_gen(all_days,a,b,IDs,birth):
 
 def type_of_event_gen(IDs_new,birth_new):
     type_of_events = []
-    type_of_events_for_rand = ['call','SMS','Data']
+    type_of_events_for_rand = ['Call','SMS','Data']
     ver_old = [0.65,0.25,0.1]
     ver_middle = [0.4,0.1,0.5]
     ver_young = [0.2,0.05,0.75]
@@ -88,7 +88,18 @@ def type_of_event_gen(IDs_new,birth_new):
             type_of_events.append(np.random.choice(type_of_events_for_rand, p=ver_old))
     return type_of_events
 
+def duration_gen(type_of_events):
+    duration_of_event = []
+    for i in range(len(type_of_events)):
+        if type_of_events[i] == 'Call':
+            duration_of_event.append(np.random.choice(np.arange(60,2700)))
+        if type_of_events[i] == 'SMS':
+            duration_of_event.append(1)
+        if type_of_events[i] == 'Data':
+            duration_of_event.append(np.random.choice(np.arange(60, 5400)))
+    return duration_of_event
 
 all_days,a,b,IDs,birth = format_time_transoform(product_instance_Data_test,marge_2)
 business_product_instance_id, dateEvent, hour, minuts,IDs_new,birth_new = date_of_event_gen(all_days,a,b,IDs,birth)
-print(type_of_event_gen(IDs_new,birth_new))
+type_of_events = type_of_event_gen(IDs_new,birth_new)
+duration_of_event = duration_gen(type_of_events)
