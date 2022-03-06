@@ -2,6 +2,7 @@ import numpy as np
 from faker import Faker
 import datetime
 import pandas as pd
+import math as m
 
 product_instance_Data = pd.read_csv('product_instance.csv',index_col=False)
 customer_Data = pd.read_csv('Customer.csv',index_col=False)
@@ -110,10 +111,18 @@ def total_volume_gen(type_of_events,duration_of_event):
             total_volume.append(np.random.choice(np.arange(10, 1500)))
     return total_volume
 
-
+def number_of_sms_gen(type_of_events,total_volume):
+    number_of_sms = []
+    for i in range(len(type_of_events)):
+        if type_of_events[i] == 'SMS':
+            number_of_sms.append(m.ceil(total_volume[i]/70))
+        if  (type_of_events[i] == 'Call') or (type_of_events[i] == 'Data'):
+            number_of_sms.append(0)
+    return number_of_sms
 
 all_days,a,b,IDs,birth = format_time_transoform(product_instance_Data_test,marge_2)
 business_product_instance_id, dateEvent, hour, minuts,IDs_new,birth_new = date_of_event_gen(all_days,a,b,IDs,birth)
 type_of_events = type_of_event_gen(IDs_new,birth_new)
 duration_of_event = duration_gen(type_of_events)
 total_volume = total_volume_gen(type_of_events,duration_of_event)
+number_of_sms = number_of_sms_gen(type_of_events,total_volume)
