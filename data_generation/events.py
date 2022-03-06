@@ -61,7 +61,7 @@ def date_of_event_gen(all_days,a,b,IDs,birth):
     business_product_instance_id = []
     hour_chance = [0.01,0.01,0.01,0.01,0.01,0.02,0.03,0.06,0.07,0.08,0.06,0.07,0.04,0.03,0.04,0.06,0.08,0.06,0.08,0.06,0.04,0.03,0.02,0.02]
     for i in range(len(all_days)):
-        for j in range(all_days[i]):
+        for j in range(all_days[i]*14):
             business_product_instance_id.append(i)
             dateEvent.append(fake.date_between(start_date=b[i],end_date=a[i]))
             IDs_new.append(IDs[i])
@@ -120,9 +120,32 @@ def number_of_sms_gen(type_of_events,total_volume):
             number_of_sms.append(0)
     return number_of_sms
 
+def event_id_gen(type_of_events):
+    event_id = [i for i in range(0,len(type_of_events))]
+    return event_id
+
+def direction_gen(event_id,type_of_events):
+    direction = []
+    for i in range(len(event_id)):
+        if  (type_of_events[i] == 'Call') or (type_of_events[i] == 'SMS'):
+            direction.append(np.random.choice(['In','Out'],p=[0.5,0.5]))
+        if type_of_events[i] == 'Data':
+            direction.append('No')
+    return direction
+
+def roaming_gen(event_id):
+    roaming = []
+    for i in range(len(event_id)):
+        roaming.append(np.random.choice(['Yes','No'],p=[0.1,0.9]))
+    return roaming
+
 all_days,a,b,IDs,birth = format_time_transoform(product_instance_Data_test,marge_2)
 business_product_instance_id, dateEvent, hour, minuts,IDs_new,birth_new = date_of_event_gen(all_days,a,b,IDs,birth)
 type_of_events = type_of_event_gen(IDs_new,birth_new)
 duration_of_event = duration_gen(type_of_events)
 total_volume = total_volume_gen(type_of_events,duration_of_event)
 number_of_sms = number_of_sms_gen(type_of_events,total_volume)
+event_id = event_id_gen(type_of_events)
+direction = direction_gen(event_id,type_of_events)
+roaming = roaming_gen(event_id)
+
