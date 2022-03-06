@@ -99,7 +99,21 @@ def duration_gen(type_of_events):
             duration_of_event.append(np.random.choice(np.arange(60, 5400)))
     return duration_of_event
 
+def total_volume_gen(type_of_events,duration_of_event):
+    total_volume = []
+    for i in range(len(type_of_events)):
+        if type_of_events[i] == 'Call':
+            total_volume.append(duration_of_event[i]//60)
+        if type_of_events[i] == 'SMS':
+            total_volume.append(np.random.choice(np.arange(10, 200)))
+        if type_of_events[i] == 'Data':
+            total_volume.append(np.random.choice(np.arange(10, 1500)))
+    return total_volume
+
+
+
 all_days,a,b,IDs,birth = format_time_transoform(product_instance_Data_test,marge_2)
 business_product_instance_id, dateEvent, hour, minuts,IDs_new,birth_new = date_of_event_gen(all_days,a,b,IDs,birth)
 type_of_events = type_of_event_gen(IDs_new,birth_new)
 duration_of_event = duration_gen(type_of_events)
+total_volume = total_volume_gen(type_of_events,duration_of_event)
