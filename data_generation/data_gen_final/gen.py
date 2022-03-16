@@ -1,5 +1,7 @@
 import pandas as pd
 import generation_pipeline as gp
+import numpy as np
+from tqdm import tqdm
 
 cdg = gp.CustomerDataGeneration('ja_JP',10000)
 cdg.generate_all_data()
@@ -15,16 +17,23 @@ pi_gen.save_to_csv()
 
 pi_df = pd.read_csv("product_instance.csv",index_col = False)
 
-events = gp.event_generation()
+n = 20
+customer_batch_list = []
 
-costed_df = pd.read_csv("costed_event.csv",index_col = False)
-
-cg = gp.ChargeGeneration(costed_df,product_df,pi_df)
-cg.generate_all()
-cg.save_to_csv()
-
-charge_df = pd.read_csv("charge.csv",index_col = False)
-
-pg = gp.PaymentGeneration(costed_df, product_df, pi_df, charge_df, customer_df)
-pg.generate_all()
-pg.save_to_csv()
+for g, df in customer_df.groupby(np.arange(len(customer_df)) // n):
+    customer_batch_list.append(df)
+    
+for batch_index in tqdm(range(0,len(customer_batch_list))):
+    instance_batch = pi_df.loc[pi_df.customer_id.isin(np.arange(customer_batch_list[batch_index].ID.iloc[0], 
+                                                                customer_batch_list[batch_index].ID.iloc[-1]+1))]
+    events = gp.event_generation(instance_batch, customer_batch_list[batch_index], form=batch_index)
+    costed_df = pd.read_csv("costed_event{0}.csv".format(str(batch_index)) ,index_col = False)
+    
+    cg = gp.ChargeGeneration(costed_df,product_df,instance_batch)
+    cg.generate_all()
+    cg.save_to_csv(file_name="charge{0}.csv".format(str(batch_index)))
+    
+    charge_df = pd.read_csv("charge{0}.csv".format(str(batch_index)) ,index_col = False)
+    pg = gp.PaymentGeneration(costed_df, product_df, instance_batch, charge_df, customer_batch_list[batch_index])
+    pg.generate_all()
+    pg.save_to_csv(file_name="payment{0}.csv".format(str(batch_index)))

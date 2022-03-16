@@ -556,9 +556,9 @@ class ProductInstanceGeneration:
         self.product_instance_df.to_csv(file_name,index=False)
         
 #EVENTS
-def read_and_marge():
-    product_instance_Data = pd.read_csv('product_instance.csv',index_col=False)
-    customer_Data = pd.read_csv('Customer.csv',index_col=False)
+def read_and_marge(product_instance_Data, customer_Data):
+    #product_instance_Data = pd.read_csv('product_instance.csv',index_col=False)
+    #customer_Data = pd.read_csv('Customer.csv',index_col=False)
     product = pd.read_csv('product.csv',index_col=False)
     fake = Faker()
 
@@ -620,7 +620,7 @@ def format_time_transoform(marge_3):
         birth.append(marge_3.date_of_birth.values[i])
     return all_days,a,b,IDs,birth,MSISDNs,product_ids
 
-def date_of_event_gen(all_days,a,b,IDs,birth,MSISDNs,product_ids):
+def date_of_event_gen(all_days,a,b,IDs,birth,MSISDNs,product_ids,product_instance_Data):
     fake = Faker()
     IDs_new = []
     birth_new = []
@@ -631,12 +631,13 @@ def date_of_event_gen(all_days,a,b,IDs,birth,MSISDNs,product_ids):
     hour_chance = [0.01,0.01,0.01,0.01,0.01,0.02,0.03,0.06,0.07,0.08,0.06,0.07,0.04,0.03,0.04,0.06,0.08,0.06,0.08,0.06,0.04,0.03,0.02,0.02]
     for i in range(len(all_days)):
         for j in range(all_days[i]*6):
-            business_product_instance_id.append(i)
+            business_product_instance_id.append(product_instance_Data.business_product_instance_id.values[0]+i)
             dateEvent.append(fake.date_between(start_date=b[i],end_date=a[i]))
             IDs_new.append(IDs[i])
             birth_new.append(birth[i])
             MSISDNs_new.append(MSISDNs[i])
             product_ids_new.append(product_ids[i])
+    
     len1 = len(business_product_instance_id)
     x = np.arange(1,25)
     hour = np.random.choice(x,size=len1, p=hour_chance)
@@ -782,10 +783,10 @@ def all_gen(event_id,business_product_instance_id,dateEvent, hour, minuts,cost,d
                        'direction':direction,'roaming':roaming,'calling_msisdn':calling_msisdn,'called_msisdn':called_msisdn})
     return df
 
-def event_generation():
-    marge_3 = read_and_marge()
+def event_generation(product_instance_Data, customer_Data, form=0):
+    marge_3 = read_and_marge(product_instance_Data, customer_Data)
     all_days,a,b,IDs,birth,MSISDNs,product_ids = format_time_transoform(marge_3)
-    business_product_instance_id, dateEvent, hour, minuts,IDs_new,birth_new,MSISDNs_new,product_ids_new = date_of_event_gen(all_days,a,b,IDs,birth,MSISDNs,product_ids)
+    business_product_instance_id, dateEvent, hour, minuts,IDs_new,birth_new,MSISDNs_new,product_ids_new = date_of_event_gen(all_days,a,b,IDs,birth,MSISDNs,product_ids,product_instance_Data)
     type_of_events = type_of_event_gen(IDs_new,birth_new)
     duration_of_event = duration_gen(type_of_events)
     total_volume = total_volume_gen(type_of_events,duration_of_event)
@@ -796,7 +797,7 @@ def event_generation():
     cost = cost_gen(product_ids_new,type_of_events,total_volume,number_of_sms,roaming)
     calling_msisdn,called_msisdn = calling_msisdn_and_called_msisdn_gen(direction,MSISDNs_new)
     df = all_gen(event_id,business_product_instance_id,dateEvent, hour, minuts,cost,duration_of_event,number_of_sms,total_volume,type_of_events,direction,roaming,calling_msisdn,called_msisdn)
-    df.to_csv("costed_event.csv")
+    df.to_csv("costed_event{0}.csv".format(str(form)))
 
 class ChargeGeneration:
     def __init__(self,costed_df,product_df,pi_df):
@@ -857,7 +858,7 @@ class ChargeGeneration:
         return charge
     
     def generate_all(self):
-        for i in range(self.costed_df.business_product_instance_id.nunique()):
+        for i in range(self.pi_df.business_product_instance_id.iloc[0], self.pi_df.business_product_instance_id.iloc[-1]+1):
             self.charge_for_instance(i)
         self.charge.charge_id = np.arange(0,self.charge.shape[0])
     
@@ -903,7 +904,8 @@ class PaymentGeneration:
         self.pi_df = pi_df
         self.charge_df = charge_df
         self.customer_df = customer_df
-        self.customer_count_to_gen = int(self.pi_df[self.pi_df.business_product_instance_id == max(self.costed_df.business_product_instance_id.values)].customer_id)+1
+        self.customer_count_to_gen2 = int(self.pi_df[self.pi_df.business_product_instance_id == max(self.costed_df.business_product_instance_id.values)].customer_id)+1
+        self.customer_count_to_gen1 = int(self.pi_df[self.pi_df.business_product_instance_id == min(self.costed_df.business_product_instance_id.values)].customer_id)
         self.payment = pd.DataFrame(columns = ["payment_id",
                                               "customer_id",
                                               "payment_method",
@@ -948,7 +950,7 @@ class PaymentGeneration:
         
     
     def generate_all(self):
-        for i in range(self.customer_count_to_gen): #self.customer_count_to_gen
+        for i in range(self.customer_count_to_gen1,self.customer_count_to_gen2): #self.customer_count_to_gen
             self.payment_for_customer(i)
         self.payment.payment_id = np.arange(0,self.payment.shape[0])
     
