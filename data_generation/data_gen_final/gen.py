@@ -24,6 +24,7 @@ for g, df in customer_df.groupby(np.arange(len(customer_df)) // n):
     customer_batch_list.append(df)
     
 for batch_index in tqdm(range(0,len(customer_batch_list))):
+    
     instance_batch = pi_df.loc[pi_df.customer_id.isin(np.arange(customer_batch_list[batch_index].ID.iloc[0], 
                                                                 customer_batch_list[batch_index].ID.iloc[-1]+1))]
     events = gp.event_generation(instance_batch, customer_batch_list[batch_index], form=batch_index)
