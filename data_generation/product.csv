@@ -1,14 +1,14 @@
 product_id,product_name,product_category,product_type,recurrent,cost_for_call,cost_for_sms,cost_for_data,allowance_sms,allowance_voice,allowance_data,total_cost
-1,5G Gigaho Premier,5G,tariff,regularly,22,3.3,0,,,unlimited,7315
-2,Kake-hodai Option,5G,addon,regularly,0,0,0,,unlimited,,1870
-3,5G Gigalight,5G,tariff,regularly,22,3.3,0,,,7,6765
-4,Gigaho Premier,LTE,tariff,regularly,22,3.3,0,,,60,7205
-5,Gigalight,LTE,tariff,regularly,22,3.3,0,,,7,6765
-6,Hajimete Sumaho Plan,5G-LTE,tariff,regularly,0,3.3,0,,,1,1980
-7,Kake-hodai Option (¥1000),5G-LTE,addon,regularly,0,0,0,,unlimited,,1100
-8,U15 Hajimete Sumaho Plan,5G-LTE,tariff,regularly,22,3.3,0,,,5,1980
-9,5G Data Plus,data only (5G),addon,regularly,0,0,0,,,30,1100
-10,Data Plus,data only (LTE),addon,regularly,0,0,0,,,30,1100
-11,LTE Jouku Riyou Plan,data only (LTE),addon,regularly,0,0,0,,,120,49800
-12,Keitai Plan,LTE,tariff,regularly,22,3.3,0,,,0.1,1500
-13,Kids Keitai Plan (Xi),LTE,tariff,regularly,22,3.3,0,,,,550
+1,5G Gigaho Premier,5G,tariff,regularly,4.4,3.3,0,None,None,unlimited,7315
+2,Kake-hodai Option,5G,addon,regularly,0,0,None,unlimited,unlimited,None,1870
+3,5G Gigalight,5G,tariff,regularly,4.4,3.3,0,None,None,7,6765
+4,Gigaho Premier,LTE,tariff,regularly,4.4,3.3,0,None,None,60,7205
+5,Gigalight,LTE,tariff,regularly,4.4,3.3,0,None,None,7,6765
+6,Hajimete Sumaho Plan,5G-LTE,tariff,regularly,0,3.3,0,None,unlimited,1,1980
+7,Kake-hodai Option (¥1000),5G-LTE,addon,regularly,0,None,None,None,unlimited,None,1100
+8,U15 Hajimete Sumaho Plan,5G-LTE,tariff,regularly,4.4,3.3,0,None,None,5,1980
+9,5G Data Plus,data only (5G),addon,regularly,None,None,0,None,None,30,1100
+10,Data Plus,data only (LTE),addon,regularly,None,None,0,None,None,30,1100
+11,LTE Jouku Riyou Plan,data only (LTE),addon,regularly,None,None,0,None,None,120,49800
+12,Keitai Plan,LTE,tariff,regularly,4.4,3.3,0,None,None,0.1,1500
+13,Kids Keitai Plan (Xi),LTE,tariff,regularly,4.4,3.3,0,None,None,None,550
