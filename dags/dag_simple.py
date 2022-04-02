@@ -77,7 +77,7 @@ with DAG(dag_id=DAG_ID,
                                             task_id=f"{DAG_ID}.RAW.{payments_table_name}",
                                             python_callable=load_csv_pandas,
                                             op_kwargs={
-                                                "file_path": f"{DATA_PATH}/payments.csv",
+                                                "file_path": f"{DATA_PATH}/payment0.csv",
                                                 "table_name": payments_table_name,
                                                 "conn_id": "raw_postgres"
                                             }

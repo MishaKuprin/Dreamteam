@@ -6,7 +6,7 @@ import pandas as pd
 import sqlite3
 import os
 import json
-from transform import customer, costed_event, charge, product_instance, product, payments
+#from transform import customer, costed_event, charge, product_instance, product, payments
 DATA_PATH = './airflow_jp_telecom/data/raw'
 LOAD_PATH = './airflow_jp_telecom/data/load'
 default_args = {
