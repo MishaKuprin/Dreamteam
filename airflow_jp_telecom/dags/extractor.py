@@ -19,15 +19,6 @@ DAG_ID = "extractor"
 schedule = "@once"
 
 
-# def load_csv_pandas(file_path: str, table_name: str, schema: str = "raw", conn_id: str = None) -> None:
-#     conn_object = BaseHook.get_connection(conn_id or DEFAULT_POSTGRES_CONN_ID) # conn_id or
-#     # extra = conn_object.extra_dejson
-#     jdbc_url = f"postgresql://{conn_object.login}:{conn_object.password}@" \
-#                f"{conn_object.host}/{conn_object.schema}"
-#     df = pd.read_csv(file_path)
-#     engine = create_engine(jdbc_url)
-#     df.to_sql(table_name, engine, schema=schema, if_exists="replace")
-
 def extract_sql(table_name: str, schema: str = "raw", conn_id: str = None) -> None:
     conn_object = BaseHook.get_connection(conn_id or DEFAULT_POSTGRES_CONN_ID)  # conn_id or DEFAULT_POSTGRES_CONN_ID
     jdbc_url = f"postgresql://{conn_object.login}:{conn_object.password}@" \
@@ -38,20 +29,6 @@ def extract_sql(table_name: str, schema: str = "raw", conn_id: str = None) -> No
                         """,
                      engine)
     df.to_csv(f"{EXTRACT_PATH}/{table_name}.csv", index=False)
-
-# def datamart_pandas(table_name: str, schema: str = "datamart", conn_id: str = None) -> None:
-#     conn_object = BaseHook.get_connection(conn_id or DEFAULT_POSTGRES_CONN_ID) # conn_id or DEFAULT_POSTGRES_CONN_ID
-#     jdbc_url = f"postgresql://{conn_object.login}:{conn_object.password}@" \
-#                f"{conn_object.host}:{conn_object.port}/{conn_object.schema}"
-#     engine = create_engine(jdbc_url)
-#     df = pd.read_sql("""
-#                     select c.customer_id, sum(p.amount) as amount, current_timestamp as execution_timestamp
-#                     from raw.customer as c
-#                     join raw.payments as p on c.customer_id=p.customer_id
-#                     group by c.customer_id
-#                     """,
-#                      engine)
-#     df.to_sql(table_name, engine, schema=schema, if_exists="append")
 
 
 with DAG(dag_id=DAG_ID,
