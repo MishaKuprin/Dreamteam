@@ -214,15 +214,18 @@ class CustomGoogleDriveHook(GoogleBaseHook):
         """
         service = self.get_conn()
         results = service.files().list(pageSize=100,
-                                       fields="nextPageToken, files(id, name)",
-                                       q="'1-8SSL_9Q6xwKPVxzVU7II57vripv_gbe' in parents").execute()
-        #q="'1-8SSL_9Q6xwKPVxzVU7II57vripv_gbe' in parents"
+                                       fields="nextPageToken, files(id, name)").execute()
+
         file_ids = []
         file_names = []
+
         for i in range(len(results['files'])):
             file_ids.append(results['files'][i]['id'])
             file_names.append(results['files'][i]['name'])
-        return file_ids,file_names
+        files_csv_names = [file_names[i]  for i in range(len(file_names)) if file_names[i].endswith(".csv")]
+        files_csv_ids = [file_ids[file_names.index(files_csv_names[i])] for i in range(len(files_csv_names))]
+
+        return files_csv_ids,files_csv_names
 
     def download_all_files(self, data_path: str, mode: str = "all"):
         """

@@ -15,7 +15,7 @@ AIRFLOW_HOME = "./airflow_jp_telecom"
 DATA_PATH = './data/raw'
 EXTRACT_PATH = './data/extract'
 
-DAG_ID = "extractor"
+DAG_ID = "extract_raw_data_from_sql"
 schedule = "@once"
 
 

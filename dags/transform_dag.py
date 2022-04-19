@@ -17,7 +17,7 @@ DATA_PATH = './data/raw'
 EXTRACT_PATH = './data/extract'
 LOAD_PATH = './data/load'
 
-DAG_ID = "transformer"
+DAG_ID = "first_datamart_pandas_transformer"
 schedule = "@once"
 
 @task()
