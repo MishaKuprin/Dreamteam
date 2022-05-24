@@ -1,4 +1,0 @@
-pandas
-pandasql
-sqlalchemy
-
