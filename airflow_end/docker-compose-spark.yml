@@ -1,0 +1,169 @@
+version: '3'
+x-airflow-common:
+  &airflow-common
+  image: airflow-etl:latest
+  env_file:
+    - ./airflow-etl.env
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__SECRETS__BACKEND: 'airflow.secrets.local_filesystem.LocalFilesystemBackend'
+    AIRFLOW__SECRETS__BACKEND_KWARGS: '{"variables_file_path": "/local_backend/variables.yaml", "connections_file_path": "/local_backend/connections.json"}'
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
+    AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'
+    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: '30'
+  volumes:
+    - aiflow-logs-volume:/opt/airflow/logs/
+    - ./dags/:/opt/airflow/dags/
+    - ./core/:/opt/airflow/dags/core/
+    - ./local:/local_backend:ro
+#    - ./core:/usr/local/spark/core # Spark scripts folder (Must be the same path in airflow and Spark Cluster)
+    - ./resources:/usr/local/spark/resources #Resources folder (Must be the same path in airflow and Spark Cluster)
+    - ./example:/usr/local/spark/example #Resources folder (Must be the same path in airflow and Spark Cluster)
+  depends_on:
+    airflow-etl-postgres:
+      condition: service_healthy
+
+services:
+
+  airflow-etl-postgres:
+    image: postgres:13
+    container_name: airflow-etl-postgres
+    hostname: postgres
+    environment:
+      POSTGRES_DB: airflow
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data/
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "airflow" ]
+      interval: 5s
+      retries: 5
+    restart: always
+
+  airflow-etl-webserver:
+    <<: *airflow-common
+    command: webserver
+    container_name: airflow-etl-webserver
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://localhost:8080/health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+    depends_on:
+      airflow-etl-init:
+        condition: service_completed_successfully
+
+  airflow-etl-scheduler:
+    <<: *airflow-common
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        /opt/airflow/get_hadoop_conf.sh
+        exec /entrypoint airflow scheduler
+    container_name: airflow-etl-scheduler
+    healthcheck:
+      test: [ "CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"' ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    restart: always
+    depends_on:
+      airflow-etl-init:
+        condition: service_completed_successfully
+
+  airflow-etl-init:
+    <<: *airflow-common
+    command: version
+    container_name: airflow-etl-init
+    env_file:
+      - ./airflow-etl.env
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_UPGRADE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
+      _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
+
+  # Spark with 3 workers
+  spark:
+    image: bitnami/spark:3.1.2
+    user: root # Run container as root container: https://docs.bitnami.com/tutorials/work-with-non-root-containers/
+    hostname: spark
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    volumes:
+      - ./core:/usr/local/spark/core # Spark scripts folder (Must be the same path in airflow and Spark Cluster)
+      - ./resources:/usr/local/spark/resources #Resources folder (Must be the same path in airflow and Spark Cluster)
+      - ./example:/usr/local/spark/example #Resources folder (Must be the same path in airflow and Spark Cluster)
+    ports:
+      - "8181:8080"
+      - "7077:7077"
+
+  spark-worker-1:
+    image: bitnami/spark:3.1.2
+    user: root
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    volumes:
+      - ./core:/usr/local/spark/core # Spark scripts folder (Must be the same path in airflow and Spark Cluster)
+      - ./resources:/usr/local/spark/resources #Resources folder (Must be the same path in airflow and Spark Cluster)
+      - ./example:/usr/local/spark/example #Resources folder (Must be the same path in airflow and Spark Cluster)
+
+  spark-worker-2:
+    image: bitnami/spark:3.1.2
+    user: root
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    volumes:
+      - ./core:/usr/local/spark/core # Spark scripts folder (Must be the same path in airflow and Spark Cluster)
+      - ./resources:/usr/local/spark/resources #Resources folder (Must be the same path in airflow and Spark Cluster)
+      - ./example:/usr/local/spark/example #Resources folder (Must be the same path in airflow and Spark Cluster)
+
+  spark-worker-3:
+    image: bitnami/spark:3.1.2
+    user: root
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark:7077
+      - SPARK_WORKER_MEMORY=512m
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    volumes:
+      - ./core:/usr/local/spark/core # Spark scripts folder (Must be the same path in airflow and Spark Cluster)
+      - ./resources:/usr/local/spark/resources #Resources folder (Must be the same path in airflow and Spark Cluster)
+      - ./example:/usr/local/spark/example #Resources folder (Must be the same path in airflow and Spark Cluster)
+
+volumes:
+  postgres-db-volume:
+  aiflow-logs-volume:

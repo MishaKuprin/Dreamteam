@@ -1,0 +1,29 @@
+with payment_last as
+(
+select p.customer_id,max(p.date) as last_date,p.amount
+from raw.payment as p
+group by p.customer_id,p.amount,p.date
+having p.date in (select max(date) from raw.payment group by customer_id)
+),
+payment_for_all_time as
+(
+select customer_id, sum(amount) as all_money
+from raw.payment
+group by customer_id
+),
+tariff as
+(
+select i.customer_id,i.business_product_instance_id,i.activation_date,i.termination_date,p.product_name,
+p.allowance_sms,p.allowance_voice,p.allowance_data,p.cost_for_call,p.cost_for_sms,p.cost_for_data,
+p.total_cost
+from raw.product_instance as i
+join raw.product as p on i.product_id = p.product_id
+where i."Status" = 'Active' and p.product_type = 'tariff'
+)
+select distinct c.customer_id,c.first_name,c.last_name,c.date_of_birth,c.gender,c.email,c.agree_for_promo,c.autopay_card,
+c.customer_category,c.language,c.customer_since,c.customer_termination_date,c.region,c.status,c."MSISDN",
+f.last_date,f.amount,j.all_money, d.product_name,d.activation_date,d.termination_date
+from raw.customer as c
+left join payment_last as f on f.customer_id = c.customer_id
+left join payment_for_all_time as j on j.customer_id = c.customer_id
+left join tariff as d on d.customer_id = c.customer_id

@@ -1,0 +1,11 @@
+with fu as
+(
+select business_product_instance_id,date,sum(cost) as money
+from raw.charge
+group by business_product_instance_id,date
+)
+select p.product_name,c.date,sum(c.money)
+from raw.product_instance as i
+left join raw.product as p on i.product_id = p.product_id
+left join fu as c on i.business_product_instance_id=c.business_product_instance_id
+group by p.product_name,c.date

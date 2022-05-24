@@ -1,0 +1,3 @@
+select date,count(event_id),event_type
+from raw.costed_event
+group by date,event_type
