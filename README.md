@@ -11,6 +11,7 @@
 6. Создание витрин данных по заказу условных маркетологов для промоакций;
 7. Развертывание контейнерного сервера на базе Ubuntu с помощью Docker;
 8. Создание дашборда для аналитики средствами Yandex DataLens.
+<img src='https://drive.google.com/uc?export=view&id=16ZM1VlM2PYUtkHqGLRcWXJaOzKXMcwN1'>
 
 
 
